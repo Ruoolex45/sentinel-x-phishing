@@ -1,0 +1,20 @@
+# entorno virtual
+.venv/
+
+# cachés de Python
+__pycache__/
+*.pyc
+
+# modelos entrenados y datasets (pesan demasiado para git)
+*.pkl
+*.csv
+
+# base de datos local del front-end
+webapp/historial.db
+webapp/__pycache__/
+
+# configuración local
+webapp/config.json
+
+# IDE
+.idea/

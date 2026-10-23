@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% set active = "settings" %}
+{% set title = "Settings" %}
+
+{% block content %}
+<h1 class="page-title">Security Settings</h1>
+<p class="page-sub">Ajusta la sensibilidad real del escáner y tus preferencias de la cuenta.</p>
+
+<form method="post" action="{{ url_for('settings') }}">
+  <div class="settings-grid">
+    <div class="card">
+      <h2>{{ icon("sliders", 16) }} Scanner Sensitivity</h2>
+      <p class="page-sub" style="margin-bottom:0;">
+        Ajusta qué tan estricto es Sentinel-X al evaluar enlaces y correos. Una sensibilidad más
+        alta detecta más casos dudosos, a costa de más falsos positivos en sitios legítimos poco
+        comunes.
+      </p>
+      <div class="range-row">
+        <input type="range" id="sens-range" min="0" max="2" step="1"
+               value="{{ 0 if cfg.sensibilidad == 'relaxed' else (2 if cfg.sensibilidad == 'strict' else 1) }}">
+        <div class="range-labels">
+          <span>Relaxed</span><span class="mid">Balanced</span><span>Strict</span>
+        </div>
+      </div>
+      <input type="hidden" name="sensibilidad" id="sens-input" value="{{ cfg.sensibilidad }}">
+
+      <h2 style="margin-top:24px;">{{ icon("bell", 16) }} Alerts &amp; Notifications</h2>
+      <div class="setting-row">
+        <div>
+          <div class="label">Real-time Threat Alerts</div>
+          <div class="desc">Muestra un aviso apenas se detecta un enlace de alto riesgo.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="alertas_tiempo_real" {{ "checked" if cfg.alertas_tiempo_real }}>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label">Weekly Security Summary</div>
+          <div class="desc">Resumen semanal de enlaces analizados y amenazas evitadas.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="resumen_semanal" {{ "checked" if cfg.resumen_semanal }}>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label">Educational Prompts</div>
+          <div class="desc">Muestra explicaciones breves al navegar zonas potencialmente inseguras.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="prompts_educativos" {{ "checked" if cfg.prompts_educativos }}>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>{{ icon("lock", 16) }} Privacy</h2>
+      <div style="margin-bottom:18px;">
+        <div class="label" style="font-weight:600; font-size:14px; margin-bottom:4px;">Data Retention</div>
+        <div class="desc" style="font-size:12.5px; color:var(--text-muted); margin-bottom:8px;">
+          Cuánto tiempo se conserva tu historial de escaneos.
+        </div>
+        <select name="retencion_dias">
+          <option value="7" {{ "selected" if cfg.retencion_dias == "7" }}>7 Days</option>
+          <option value="30" {{ "selected" if cfg.retencion_dias == "30" }}>30 Days (Recommended)</option>
+          <option value="90" {{ "selected" if cfg.retencion_dias == "90" }}>90 Days</option>
+          <option value="0" {{ "selected" if cfg.retencion_dias == "0" }}>Forever</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="label">Anonymous Analytics</div>
+          <div class="desc">Ayuda a mejorar Sentinel-X compartiendo datos de amenazas de forma anónima.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="analytics_anonimos" {{ "checked" if cfg.analytics_anonimos }}>
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" style="justify-content:center;">Save Changes</button>
+      <button type="button" class="btn-danger-block" disabled title="No disponible en esta demo">Delete Account</button>
+    </div>
+  </div>
+</form>
+
+<div class="footer">
+  <div>© 2026 Sentinel-X Security. All rights reserved.</div>
+  <div><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Contact Support</a></div>
+</div>
+
+<script>
+  var sensRange = document.getElementById("sens-range");
+  var sensInput = document.getElementById("sens-input");
+  var map = ["relaxed", "balanced", "strict"];
+  sensRange.addEventListener("input", function () {
+    sensInput.value = map[sensRange.value];
+  });
+</script>
+{% endblock %}

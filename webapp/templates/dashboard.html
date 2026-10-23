@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% set active = "dashboard" %}
+{% set title = "Dashboard" %}
+
+{% block content %}
+<h1 class="page-title">Analysis Center</h1>
+<p class="page-sub">Submit suspicious URLs or email headers for immediate threat evaluation.</p>
+
+<div class="grid-2">
+  <div class="card" id="scanner">
+    <h2><span class="card-icon">{{ icon("target", 16) }}</span> Threat Scanner</h2>
+
+    <div class="tabs">
+      <button class="tab active" type="button" data-tab="url">URL / Domain</button>
+      <button class="tab" type="button" data-tab="email">Email Header</button>
+      <button class="tab" type="button" disabled title="Próximamente">File Hash</button>
+    </div>
+
+    <form method="post" action="{{ url_for('scan') }}" id="scan-form">
+      <input type="hidden" name="tipo" id="tipo-input" value="url">
+      <div class="scan-row" id="url-row">
+        {{ icon("link", 16) }}
+        <input type="text" name="valor" id="valor-url" placeholder="https://example.com/suspicious-link">
+        <button class="btn-primary" type="submit">Analyze →</button>
+      </div>
+      <div class="scan-row" id="email-row" style="display:none;">
+        <textarea id="valor-email" placeholder="Pega aquí el asunto y el cuerpo del correo sospechoso..."></textarea>
+      </div>
+      <div id="email-submit" style="display:none; margin-top:10px; text-align:right;">
+        <button class="btn-primary" type="submit">Analyze →</button>
+      </div>
+    </form>
+    <p id="scan-hint" style="display:none; font-size:12px; color:var(--text-muted); margin-top:8px;">
+      Pega el asunto y/o el cuerpo del correo tal como lo recibiste.
+    </p>
+
+    <div class="info-box">
+      {{ icon("info", 18) }}
+      <div>
+        <strong>How it works</strong>
+        Analizamos la URL con un modelo XGBoost entrenado sobre 111 características (léxicas, DNS,
+        WHOIS/RDAP, SSL y HTTP), o el correo con un modelo de Random Forest sobre embeddings
+        multilingües, para detectar patrones de phishing en tiempo real.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Overview</h2>
+    <div class="stat-pill green">
+      <div class="stat-icon">{{ icon("shield-check", 16) }}</div>
+      <div class="stat-label">Protected</div>
+      <div class="stat-value">{{ total }}</div>
+    </div>
+    <div class="stat-pill red">
+      <div class="stat-icon">{{ icon("alert-triangle", 16) }}</div>
+      <div class="stat-label">Threats Blocked</div>
+      <div class="stat-value">{{ amenazas }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>{{ icon("clock", 16) }} Recent Activity</h2>
+    <a href="{{ url_for('statistics') }}" style="color:var(--purple); font-size:13px; font-weight:600; text-decoration:none;">View All</a>
+  </div>
+
+  {% if recientes %}
+  <table class="activity">
+    <thead>
+      <tr><th>Target</th><th>Type</th><th>Time</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for r in recientes %}
+      <tr>
+        <td>
+          <div class="target-cell">
+            <div class="target-icon">{{ icon("link" if r.tipo == "url" else "mail", 14) }}</div>
+            {{ r.objetivo }}
+          </div>
+        </td>
+        <td>{{ "URL Scan" if r.tipo == "url" else "Email Header" }}</td>
+        <td>{{ r.creado_en.replace("T", " ") }}</td>
+        <td><span class="badge {{ r.clasificacion }}">{{ r.clasificacion|capitalize }}</span></td>
+        <td><a href="{{ url_for('risk_analysis', scan_id=r.id) }}" style="color:var(--purple); font-size:12.5px; font-weight:600; text-decoration:none;">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">Todavía no has analizado ninguna URL ni correo. Usa el escáner de arriba para empezar.</div>
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

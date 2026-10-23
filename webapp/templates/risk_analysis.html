@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% set active = "risk" %}
+{% set title = "Risk Analysis" %}
+
+{% block content %}
+{% set score = (scan.probabilidad * 100) | round | int %}
+
+<div class="risk-header">
+  <div>
+    <h1 class="page-title" style="margin-bottom:6px;">Risk Analysis Report</h1>
+    <div class="risk-target">
+      {{ icon("link" if scan.tipo == "url" else "mail", 14) }}
+      {{ scan.objetivo }}
+    </div>
+  </div>
+  <div class="risk-actions">
+    {% if scan.tipo == "url" %}
+    <button class="btn-danger-outline">{{ icon("ban", 14) }} Block Domain</button>
+    {% endif %}
+    <button class="btn-light-outline">{{ icon("flag", 14) }} Report</button>
+  </div>
+</div>
+
+<div class="risk-grid">
+  <div class="card">
+    <h2 style="justify-content:center;">Threat Score</h2>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg width="150" height="150" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="#eee7fb" stroke-width="12"/>
+          <circle cx="70" cy="70" r="60" fill="none"
+                  stroke="{{ '#e0374a' if scan.nivel_riesgo == 'alto' else ('#b6790a' if scan.nivel_riesgo == 'medio' else '#0f9d58') }}"
+                  stroke-width="12" stroke-linecap="round"
+                  stroke-dasharray="{{ 377 }}"
+                  stroke-dashoffset="{{ (377 * (1 - score/100)) | round | int }}"/>
+        </svg>
+        <div class="num">
+          <span class="big">{{ score }}</span>
+          <span class="small">{{ scan.nivel_riesgo|upper }} RISK</span>
+        </div>
+      </div>
+      <div class="risk-tag {{ scan.nivel_riesgo }}">
+        {% if scan.clasificacion == "phishing" %}⚠ Critical Phishing Threat
+        {% elif scan.clasificacion == "sospechoso" %}⚠ Suspicious Activity
+        {% else %}✓ No Threats Detected{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if scan.tipo == "url" %}
+  <div class="card">
+    <h2><span class="card-icon">{{ icon(detalle.ssl_valido and "lock" or "unlock", 16) }}</span> SSL Certificate</h2>
+    <div class="kv-row"><span class="k">Status</span><span class="v {{ 'ok' if detalle.ssl_valido else 'bad' }}">{{ "Valid" if detalle.ssl_valido else "Invalid / Not Found" }}</span></div>
+    <div class="kv-row"><span class="k">Redirects</span><span class="v">{{ detalle.redirecciones if detalle.redirecciones != -1 else "No disponible" }}</span></div>
+    <div class="kv-row"><span class="k">Name Servers</span><span class="v">{{ detalle.servidores_nombre }}</span></div>
+    <div class="kv-row"><span class="k">Mail Servers</span><span class="v">{{ detalle.servidores_correo }}</span></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="card-icon">{{ icon("globe", 16) }}</span> Domain Intelligence</h2>
+    <div class="kv-row">
+      <span class="k">Age</span>
+      <span class="v">
+        {%- if detalle.antiguedad_dias != -1 -%}
+          {{ detalle.antiguedad_dias }} días
+        {%- else -%}
+          No disponible
+        {%- endif -%}
+      </span>
+    </div>
+    <div class="kv-row">
+      <span class="k">Expires in</span>
+      <span class="v {{ 'bad' if detalle.vencimiento_dias != -1 and detalle.vencimiento_dias < 30 else '' }}">
+        {%- if detalle.vencimiento_dias != -1 -%}
+          {{ detalle.vencimiento_dias }} días
+        {%- else -%}
+          No disponible
+        {%- endif -%}
+      </span>
+    </div>
+    <div class="kv-row"><span class="k">ASN</span><span class="v">{{ detalle.asn if detalle.asn != -1 else "No disponible" }}</span></div>
+  </div>
+  {% else %}
+  <div class="card" style="grid-column: span 2;">
+    <h2><span class="card-icon">{{ icon("mail", 16) }}</span> Correo analizado</h2>
+    <div class="email-preview">{{ detalle.texto_analizado }}</div>
+  </div>
+  {% endif %}
+</div>
+
+{% if scan.tipo == "url" and detalle.senales %}
+<div class="card">
+  <h2>{{ icon("alert-triangle", 16) }} Threat Vectors Detected</h2>
+  <div class="signals-grid">
+    {% for s in detalle.senales %}
+    <div class="signal-card {{ 'ok' if s.icono == 'check-circle' }}">
+      <div class="sicon">{{ icon(s.icono, 15) }}</div>
+      <h4>{{ s.titulo }}</h4>
+      <p>{{ s.detalle }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="card" style="margin-top:20px;">
+  <h2>{{ icon("info", 16) }} Explicación del modelo</h2>
+  <div class="explain-box">{{ scan.explicacion }}</div>
+</div>
+
+<div class="footer">
+  <div>Sentinel-X</div>
+  <div>Analizado el {{ scan.creado_en.replace("T", " ") }} · Probabilidad de phishing: {{ (scan.probabilidad * 100) | round(2) }}%</div>
+</div>
+{% endblock %}

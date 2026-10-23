@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% set active = "stats" %}
+{% set title = "Statistics" %}
+
+{% block content %}
+<h1 class="page-title">Usage Statistics</h1>
+<p class="page-sub">Review real activity and threat prevention metrics based on your own scan history.</p>
+
+<div class="stat-cards">
+  <div class="stat-card">
+    <div class="label">Total Scans</div>
+    <div class="value">{{ total }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Threats Blocked</div>
+    <div class="value">{{ amenazas }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Marked Safe</div>
+    <div class="value">{{ seguros }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Analysis Overview</h2>
+  <p class="page-sub" style="margin-bottom:0;">Scans vs. threats found, by day (últimos días con actividad)</p>
+
+  {% if por_dia %}
+  <div class="legend">
+    <span><i style="background:#cdd6f6;"></i>Scanned</span>
+    <span><i style="background:var(--purple);"></i>Threats</span>
+  </div>
+  <div class="bars">
+    {% for d in por_dia %}
+    <div class="bar-group">
+      <div class="bar-pair">
+        <div class="bar" style="height: {{ (d.total / max_total * 160) | round | int }}px;"></div>
+        <div class="bar threat" style="height: {{ (d.amenazas / max_total * 160) | round | int }}px;"></div>
+      </div>
+      <div class="bar-label">{{ d.dia[5:] }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">Aún no hay suficientes escaneos para mostrar un gráfico. Analiza algunas URLs o correos desde el Dashboard.</div>
+  {% endif %}
+</div>
+{% endblock %}

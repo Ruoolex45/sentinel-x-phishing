@@ -1,0 +1,11 @@
+flask
+pandas
+numpy
+scikit-learn
+xgboost
+sentence-transformers
+dnspython
+requests
+tldextract
+python-whois
+joblib

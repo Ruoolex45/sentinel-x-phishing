@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% set active = "education" %}
+{% set title = "Education" %}
+
+{% block content %}
+<h1 class="page-title">Anti-Phishing Guide</h1>
+<p class="page-sub">Aprende a identificar y neutralizar las amenazas digitales más comunes, con ejemplos reales del contexto colombiano.</p>
+
+<div class="edu-grid">
+  <div class="edu-card">
+    <div class="thumb">{{ icon("shield", 48) }}</div>
+    <div class="body">
+      <h3>Cómo leer una URL sospechosa</h3>
+      <p>
+        Antes de hacer clic, revisa tres cosas: el dominio real (lo que va justo antes de la primera
+        "/", no en cualquier parte del texto), si usa HTTPS con un certificado válido, y qué tan
+        reciente es el dominio. Los sitios de phishing suelen combinar un dominio registrado hace
+        pocos días con nombres que imitan bancos o plataformas de pago colombianas (Nequi,
+        Bancolombia, Davivienda). El escáner de Sentinel-X revisa automáticamente estas señales por ti.
+      </p>
+      <details>
+        <summary style="cursor:pointer; color:var(--purple); font-weight:600; font-size:13px;">Ver ejemplo</summary>
+        <p style="margin-top:10px;">
+          <code>secure-login-update-account-info-7f9a2.xyz/login</code> combina varias señales de
+          alerta a la vez: un dominio de solo unos días de antigüedad, un TLD poco común (.xyz), y
+          palabras como "secure", "login" y "update" que buscan generar urgencia.
+        </p>
+      </details>
+    </div>
+  </div>
+
+  <div class="edu-card">
+    <div class="thumb" style="background:linear-gradient(135deg,#f472b6,#7c3aed);">{{ icon("mail", 48) }}</div>
+    <div class="body">
+      <h3>Por qué los correos en español son más difíciles de filtrar</h3>
+      <p>
+        La mayoría de los datasets públicos usados para entrenar modelos anti-phishing están en
+        inglés. Durante el desarrollo de Sentinel-X encontramos que un modelo con muy buena
+        precisión general podía fallar en correos legítimos en español (por ejemplo, notificaciones
+        reales de Nequi), simplemente porque el idioma no estaba bien representado en el
+        entrenamiento. Por eso el modelo final usa embeddings multilingües en vez de un enfoque
+        basado únicamente en palabras clave.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="edu-small-grid">
+  <div class="edu-small-card">
+    <div class="card-icon" style="background:var(--amber-bg); color:var(--amber-text);">{{ icon("alert-triangle", 15) }}</div>
+    <h4>Señales típicas de un correo de phishing</h4>
+    <p>
+      Urgencia artificial ("tu cuenta será bloqueada en 24 horas"), enlaces que no coinciden con el
+      dominio real de la entidad, errores de ortografía, y solicitudes de datos que la entidad nunca
+      pediría por correo (claves, códigos completos de tarjeta).
+    </p>
+  </div>
+  <div class="edu-small-card">
+    <div class="card-icon" style="background:var(--green-bg); color:var(--green-text);">{{ icon("check-circle", 15) }}</div>
+    <h4>Qué hacer si recibes un enlace sospechoso</h4>
+    <p>
+      No hagas clic. Copia el enlace (sin abrirlo) y analízalo aquí mismo, en la pestaña
+      "URL / Domain" del Dashboard. Si el resultado es "Suspicious" o "Phishing", repórtalo a la
+      entidad que suplantan y borra el mensaje.
+    </p>
+  </div>
+</div>
+{% endblock %}

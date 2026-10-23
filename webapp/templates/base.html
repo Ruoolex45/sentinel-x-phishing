@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+{% from "_icons.html" import icon %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel-X{% if title %} · {{ title }}{% endif %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">{{ icon("shield", 20) }}</div>
+        <div>
+          <div class="brand-name">Sentinel-X</div>
+          <div class="brand-sub">Secure Protection</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item {{ 'active' if active == 'dashboard' }}" href="{{ url_for('dashboard') }}">
+          {{ icon("grid") }} Dashboard
+        </a>
+        <a class="nav-item {{ 'active' if active == 'risk' }}" href="{{ url_for('risk_analysis') }}">
+          {{ icon("shield-check") }} Risk Analysis
+        </a>
+        <a class="nav-item {{ 'active' if active == 'stats' }}" href="{{ url_for('statistics') }}">
+          {{ icon("bar-chart") }} Statistics
+        </a>
+        <a class="nav-item {{ 'active' if active == 'education' }}" href="{{ url_for('education') }}">
+          {{ icon("grad-cap") }} Education
+        </a>
+        <a class="nav-item {{ 'active' if active == 'settings' }}" href="{{ url_for('settings') }}">
+          {{ icon("gear") }} Settings
+        </a>
+      </nav>
+
+      <a class="scan-new-btn" href="{{ url_for('dashboard') }}#scanner">
+        {{ icon("plus", 16) }} Scan New Link
+      </a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="search-box">
+          {{ icon("search", 15) }}
+          <input type="text" placeholder="Search logs, domains, IP addresses..." disabled>
+        </div>
+        <div class="icon-btn">{{ icon("bell", 16) }}</div>
+        <div class="icon-btn">{{ icon("help", 16) }}</div>
+        <div class="avatar"></div>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for m in messages %}
+            <div class="flash-msg">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
